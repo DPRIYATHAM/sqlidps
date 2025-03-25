@@ -1,0 +1,2 @@
+include sqlidps/model.pkl
+include sqlidps/sql_tokenizer.so

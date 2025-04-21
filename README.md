@@ -12,7 +12,18 @@ Below is a detailed visualization of the flow:
 ## Time taken to Check/parse data for sqli => **3.5ms**
 
 ### Installing 
-```
+```bash
 pip install sqlidps
+```
+
+### Build from Source
+```bash
+cd sqlidps
+pip install -r requirements.txt
+make && make clean
+python train.py
+flex lexer.l
+cd ..
+pip install .
 ```
 

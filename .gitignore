@@ -1,2 +1,6 @@
+__pycache__/
 /sqlidps.egg-info/
 /build/
+*.csv
+dist/
+test.py

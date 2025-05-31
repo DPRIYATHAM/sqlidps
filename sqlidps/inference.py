@@ -3,7 +3,9 @@ import sys
 
 import numpy as np
 import pkg_resources
+
 import sqlidps.sql_tokenizer as sql_tokenizer
+
 
 def get_package_file(filename: str) -> str:
     return pkg_resources.resource_filename("sqlidps", filename)

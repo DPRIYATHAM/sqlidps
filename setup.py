@@ -28,7 +28,7 @@ tokenizer_module = Extension(
 
 setup(
     name="sqlidps",
-    version="1.0.1",
+    version="1.1.0",
     packages=find_packages(),
     install_requires=["numpy"],
     ext_modules=[tokenizer_module],

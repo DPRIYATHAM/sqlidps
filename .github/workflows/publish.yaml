@@ -121,14 +121,20 @@ jobs:
           MSSdk: "1"
 
       - name: Install and test wheel repair (optional)
+        if: runner.os == 'Windows'
         run: |
           python -m pip install delvewheel
-          delvewheel repair dist/*.whl -w repaired/ || echo "Wheel repair failed, using original"
-          if (Test-Path "repaired/*.whl") { 
-            Remove-Item dist/*.whl
-            Move-Item repaired/*.whl dist/
+          try {
+            delvewheel repair dist\*.whl -w repaired\
+          } catch {
+            Write-Host "Wheel repair failed, using original"
           }
-        shell: powershell
+
+          if (Test-Path "repaired\*.whl") {
+            Remove-Item dist\*.whl
+            Move-Item repaired\*.whl dist\
+          }
+        shell: pwsh
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4

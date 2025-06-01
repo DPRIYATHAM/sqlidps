@@ -101,11 +101,8 @@ jobs:
       - name: Install Flex & Generate lex.yy.c from sql_tokenizer.l
         run: |
           choco install winflexbison3 --no-progress
-          C:\ProgramData\chocolatey\lib\winflexbison3\tools\win_flex.exe -o sqlidps/lex.yy.c sqlidps/lexer.l
+          C:\ProgramData\chocolatey\lib\winflexbison3\tools\win_flex.exe -o sqlidps/lex.yy.c  --nounistd sqlidps/lexer.l
 
-      - name: Print first few lines of lex.yy.c
-        run: Get-Content sqlidps/lex.yy.c -TotalCount 20
-        shell: pwsh
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.3
 

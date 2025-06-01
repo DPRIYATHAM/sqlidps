@@ -20,6 +20,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Flex
+        run: sudo apt-get install -y flex
+
+      - name: Generate lex.yy.c from sql_tokenizer.l
+        run: |
+          flex -o sqlidps/lex.yy.c sqlidps/lexer.l
+
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
@@ -53,6 +60,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Flex
+        run: brew install flex
+
+      - name: Generate lex.yy.c from sql_tokenizer.l
+        run: |
+          flex -o sqlidps/lex.yy.c sqlidps/lexer.l
+
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
@@ -84,6 +98,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Flex
+        run: |
+          choco install winflexbison3 --no-progress
+          echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
+
+      - name: Generate lex.yy.c from sql_tokenizer.l
+        run: |
+          flex -o sqlidps/lex.yy.c sqlidps/lexer.l
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.3
 
@@ -110,7 +133,7 @@ jobs:
             Move-Item repaired/*.whl dist/
           }
         shell: powershell
-      
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:

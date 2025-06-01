@@ -1,3 +1,49 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = [
+    "setuptools>=45", 
+    "wheel", 
+    "numpy"
+]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqlidps"
+version = "1.1.0"
+description = "A simple SQL-injection detector based on ML"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: C",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+]
+requires-python = ">=3.8"
+dependencies = ["numpy"]
+
+[project.urls]
+Homepage = "https://github.com/DPRIYATHAM/sqli-dps/"
+Repository = "https://github.com/DPRIYATHAM/sqli-dps/"
+Issues = "https://github.com/DPRIYATHAM/sqli-dps/issues"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+sqlidps = ["model.npz", "wrapper.h", "*.c"]

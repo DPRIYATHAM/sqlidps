@@ -1,9 +1,7 @@
 import os
-import subprocess
 import sys
 
 from setuptools import Extension, find_packages, setup
-from setuptools.command.build_ext import build_ext
 
 name = "sqlidps"
 
@@ -17,13 +15,12 @@ elif sys.platform.startswith("linux"):
     extra_compile_args += ["-fPIC", "-O2", "-Wall"]
 elif sys.platform.startswith("win"):
     extra_compile_args += ["/O2", "/W3"]
-    extra_compile_args += ["/DWIN32", "/D_WINDOWS"]
 
 tokenizer_module = Extension(
     name="sqlidps.sql_tokenizer",
     sources=["./sqlidps/lex.yy.c", "./sqlidps/wrapper.c"],
     include_dirs=["./sqlidps"],
-    headers=["./sqlidps/wrapper.h"],
+    depends=["./sqlidps/wrapper.h"],
     extra_compile_args=extra_compile_args,
     extra_link_args=extra_link_args,
     language="c",

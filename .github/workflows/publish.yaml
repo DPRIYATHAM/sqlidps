@@ -6,44 +6,185 @@ on:
       - "v*"
 
 jobs:
-  build-and-publish:
-    name: Build and Publish Package
+  build_linux:
     runs-on: ubuntu-22.04
-
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
+        python-version: ["3.6", "3.7", 3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Install Flex
+        run: sudo apt-get install -y flex
+
+      - name: Generate lex.yy.c from sql_tokenizer.l
+        run: |
+          flex -o sqlidps/lex.yy.c sqlidps/lexer.l
+
+      - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build twine
+          python -m pip install build wheel numpy setuptools auditwheel
 
-      - name: Build package
-        run: python -m build
+      - name: Build wheel
+        run: python -m build --wheel
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Repair wheel
+        run: |
+          auditwheel repair dist/*.whl -w dist/
+          rm dist/*-linux_x86_64.whl  # Remove the unrepaired wheel
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: true
-          prerelease: false
+          name: wheels-linux-${{ matrix.python-version }}
+          path: dist/*.whl
+
+  build_macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Flex
+        run: brew install flex
+
+      - name: Generate lex.yy.c from sql_tokenizer.l
+        run: |
+          flex -o sqlidps/lex.yy.c sqlidps/lexer.l
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel numpy setuptools delocate
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - name: Repair wheel
+        run: delocate-wheel -w dist/ dist/*.whl
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-${{ matrix.python-version }}
+          path: dist/*.whl
+
+  build_windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Flex & Generate lex.yy.c from sql_tokenizer.l
+        run: |
+          choco install winflexbison3 --no-progress
+          C:\ProgramData\chocolatey\lib\winflexbison3\tools\win_flex.exe -o sqlidps/lex.yy.c  --nounistd sqlidps/lexer.l
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.3
+
+      - name: Setup MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel numpy setuptools delvewheel
+
+      - name: Build wheel
+        run: python -m build --wheel
+        env:
+          DISTUTILS_USE_SDK: "1"
+          MSSdk: "1"
+
+      - name: Install and test wheel repair (optional)
+        if: runner.os == 'Windows'
+        run: |
+          python -m pip install delvewheel
+          try {
+            delvewheel repair dist\*.whl -w repaired\
+          } catch {
+            Write-Host "Wheel repair failed, using original"
+          }
+
+          if (Test-Path "repaired\*.whl") {
+            Remove-Item dist\*.whl
+            Move-Item repaired\*.whl dist\
+          }
+        shell: pwsh
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.python-version }}
+          path: dist/*.whl
+
+  build_sdist:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build source distribution
+        run: python -m build --sdist
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  publish:
+    needs: [build_linux, build_macos, build_windows, build_sdist]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+
+      - name: Flatten directory structure
+        run: |
+          mkdir -p final_dist/
+          find dist/ -name "*.whl" -exec cp {} final_dist/ \;
+          find dist/ -name "*.tar.gz" -exec cp {} final_dist/ \;
+          ls -la final_dist/
 
       - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: twine upload dist/*
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          packages-dir: final_dist/
+          skip-existing: true

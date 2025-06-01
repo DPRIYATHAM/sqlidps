@@ -1,71 +1,156 @@
 name: Publish to PyPI
+
 on:
   push:
     tags:
       - "v*"
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  build_linux:
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
-        env:
-          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
-          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux*"
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
-          CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
 
-      - uses: actions/upload-artifact@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: ./wheelhouse/*.whl
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel numpy setuptools auditwheel
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - name: Repair wheel
+        run: |
+          auditwheel repair dist/*.whl -w dist/
+          rm dist/*-linux_x86_64.whl  # Remove the unrepaired wheel
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.python-version }}
+          path: dist/*.whl
+
+  build_macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel numpy setuptools delocate
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - name: Repair wheel
+        run: delocate-wheel -w dist/ dist/*.whl
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-${{ matrix.python-version }}
+          path: dist/*.whl
+
+  build_windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up MSVC
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel numpy setuptools delvewheel
+
+      - name: Build wheel
+        run: python -m build --wheel
+        env:
+          DISTUTILS_USE_SDK: 1
+
+      - name: Repair wheel
+        run: delvewheel repair dist/*.whl -w dist/
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.python-version }}
+          path: dist/*.whl
 
   build_sdist:
-    name: Build source distribution
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build sdist
-        run: pipx run build --sdist
-
-      - uses: actions/upload-artifact@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          name: cibw-sdist
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build source distribution
+        run: python -m build --sdist
+
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdist
           path: dist/*.tar.gz
 
-  upload_pypi:
-    needs: [build_wheels, build_sdist]
+  publish:
+    needs: [build_linux, build_macos, build_windows, build_sdist]
     runs-on: ubuntu-22.04
-    # Upload to PyPI on every tag starting with 'v'
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          # unpacks default artifact into dist/
-          # if `name: artifact` is omitted, the action will create extra parent dir
-          name: cibw-sdist
-          path: dist
+          path: dist/
 
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: cibw-wheels-*
-          path: dist
-          merge-multiple: true
-
-      - name: List distributions
-        run: ls -la dist/
+      - name: Flatten directory structure
+        run: |
+          mkdir -p final_dist/
+          find dist/ -name "*.whl" -exec cp {} final_dist/ \;
+          find dist/ -name "*.tar.gz" -exec cp {} final_dist/ \;
+          ls -la final_dist/
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_TOKEN }}
+          packages-dir: final_dist/
           skip-existing: true
+
+

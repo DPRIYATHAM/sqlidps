@@ -15,6 +15,9 @@ if sys.platform == "darwin":
     extra_compile_args += ["-fPIC", "-O2", "-Wall"]
 elif sys.platform.startswith("linux"):
     extra_compile_args += ["-fPIC", "-O2", "-Wall"]
+elif sys.platform.startswith("win"):
+    extra_compile_args += ["/O2", "/W3"]
+    extra_compile_args += ["/DWIN32", "/D_WINDOWS"]
 
 tokenizer_module = Extension(
     name="sqlidps.sql_tokenizer",

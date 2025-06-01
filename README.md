@@ -64,10 +64,9 @@ pip install sqlidps
 ```bash
 cd sqlidps
 pip install -r requirements.txt
-make && make clean
-python train.py
-flex lexer.l
-cd ..
+flex sqlidps/lexer.l -o sqlidps/lex.yy.c
+make sqlidps && make sqlidps clean
+python sqlidps/train.py
 pip install .
 ```
 

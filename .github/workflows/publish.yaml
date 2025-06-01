@@ -98,14 +98,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Flex
+      - name: Install Flex & Generate lex.yy.c from sql_tokenizer.l
         run: |
           choco install winflexbison3 --no-progress
-          echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
-
-      - name: Generate lex.yy.c from sql_tokenizer.l
-        run: |
-          flex -o sqlidps/lex.yy.c sqlidps/lexer.l
+          C:\ProgramData\chocolatey\lib\winflexbison3\tools\win_flex.exe -o sqlidps/lex.yy.c sqlidps/lexer.l
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.3

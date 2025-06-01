@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest, macos-latest]
-        python-version: [3.11, 3.12]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout repository
@@ -34,16 +34,6 @@ jobs:
 
       - name: Build package
         run: python -m build
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: true
-          prerelease: false
 
       - name: Publish to PyPI
         env:

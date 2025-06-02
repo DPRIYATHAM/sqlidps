@@ -24,10 +24,10 @@ Checks if the provided `data` contains potential SQLi payloads. Raises `Potentia
 * **Example**:
 
 ```python
-from sqli_dps import SQLi
+from sqlidps import SQLi
 
 try:
-    SQLi.check("SELECT * FROM users WHERE '1'='1'")
+    SQLi.check("SELECT * FROM users WHERE '1'='1' --")
 except PotentialSQLiPayload as e:
     print("Blocked:", e)
 ```

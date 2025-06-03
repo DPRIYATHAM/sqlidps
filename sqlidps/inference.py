@@ -2,14 +2,14 @@ import importlib.util
 import sys
 
 import numpy as np
-import pkg_resources
+import importlib.resources as resources
 
 import sqlidps.sql_tokenizer as sql_tokenizer
 
 
 def get_package_file(filename: str) -> str:
-    return pkg_resources.resource_filename("sqlidps", filename)
-
+    with resources.path("sqlidps", filename) as path:
+        return str(path)
 
 model_path = get_package_file("model.npz")
 # module_path = get_package_file("sql_tokenizer.so")

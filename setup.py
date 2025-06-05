@@ -49,6 +49,8 @@ setup(
     # cmdclass={"build_ext": CustomBuildExt},
     author="Darisi Priyatham, Arjun Manjunath",
     author_email="priyathamdarisi@gmail.com, dev.arjunmnath@gmail.com",
+    maintainer="Arjun Manjunath",
+    maintainer_email="dev.arjunmnath@gmail.com"
     description="A simple SQL-injection detector based on ML",
     long_description=read_readme(),
     long_description_content_type="text/markdown",

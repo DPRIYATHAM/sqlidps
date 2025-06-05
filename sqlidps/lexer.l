@@ -1,3 +1,4 @@
+
 %{
 #include "./wrapper.h"  
 %}
@@ -23,7 +24,7 @@ FILEBASED       (LOAD_FILE\(.*\)|INTO[[:space:]]+OUTFILE|INTO[[:space:]]+DUMPFIL
 DBMS_ID_KEYS    (@@CONNECTIONS|@@CPU_BUSY|USER_ID\(.*\)|ROWNUM|RAWTOHEX\(.*\)|LNNVL\(.*\)|pg_client_encoding\(.*\)|current_database\(.*\)|sqlite_version\(.*\)|connection_id\(.*\)|crc32\(.*\))
 ADV_NET_FUNCS   (UTL_HTTP\.REQUEST\(.*\)|UTL_INADDR\.GET_HOST_ADDRESS\(.*\)|UTL_TCP\.AVAILABLE\(.*\))
 OPERATORS       (<>|<=|>=|!=|=|<|>|!|\*|\/|\+|\-)
-PUNCTUATION     (\(|\)|,|;|\.)
+PUNCTUATION     (\(|\)|,|\.)
 
 %%
 {WHITESPACE}              ;  
@@ -36,6 +37,8 @@ PUNCTUATION     (\(|\)|,|;|\.)
 {FILEBASED}               { append_token("FILEBASED"); }
 {DBMS_ID_KEYS}            { append_token("DBMS_ID_KEYS"); }
 {ADV_NET_FUNCS}           { append_token("ADV_NET_FUNCS"); }
+"@@"{LETTER}({LETTER}|{DIGIT}|\$|_)*   { append_token("SYSTEM_VARIABLE"); }
+"@"{LETTER}({LETTER}|{DIGIT}|\$|_)*    { append_token("VARIABLE"); }
 {DIGIT}+(\.{DIGIT}+)?     { append_token("NUMBER"); }
 {STRING_SINGLE}           { append_token("STRING"); }
 {STRING_DOUBLE}           { append_token("STRING"); }
@@ -46,3 +49,4 @@ PUNCTUATION     (\(|\)|,|;|\.)
 {PUNCTUATION}             { append_token("PUNCTUATION"); }
 .                         { append_token("UNKNOWN"); }
 %%
+

@@ -17,9 +17,13 @@ SQLIDPS is a tool designed to detect and prevent SQL injection attacks in web ap
 The data flow in SQLIDPS illustrates how user inputs are processed to detect and prevent SQL injection attacks.  
 Below is a detailed visualization of the flow:
 
-![Flowchart](https://raw.githubusercontent.com/DPRIYATHAM/sqlidps/main/flowchart.png)
+![Flowchart](https://raw.githubusercontent.com/DPRIYATHAM/sqlidps/main/data-flow-pipeline.svg)
 
-> Time taken to Check/parse data for sqli => **3.5ms**
+
+📚 For more detailed documentation, visit [deepwiki docs](https://deepwiki.com/DPRIYATHAM/sqlidps/1-overview).
+
+## 🚀 Performance Benchmark
+**🛡️ SQL Injection Check Time:**  **0.8ms per input**
 
 ## Usage
 

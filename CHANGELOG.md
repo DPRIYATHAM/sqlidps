@@ -37,8 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - migrated from pkg_resources to importlib
 
-## [1.2.0] - (PENDING)
+## [1.2.0 (Unreleased)] - 2025-06-06
 
 ### Added
 
 - improved ml model capabilities
+
+## [1.2.1] - 2025-06-26
+### Added 
+- Improved encoding handling to support complex payloads.

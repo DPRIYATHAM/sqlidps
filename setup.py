@@ -37,7 +37,7 @@ def read_readme():
 
 setup(
     name="sqlidps",
-    version="1.1.0",
+    version="1.2.1",
     packages=find_packages(),
     install_requires=["numpy"],
     ext_modules=[tokenizer_module],
@@ -71,7 +71,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Security",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     keywords="sql injection detection security machine-learning",
     project_urls={
         "Bug Reports": "https://github.com/DPRIYATHAM/sqlidps/issues",

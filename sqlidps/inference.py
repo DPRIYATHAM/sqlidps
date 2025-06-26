@@ -1,8 +1,10 @@
+import html
+import importlib.resources as resources
 import importlib.util
+import re
 import sys
 
 import numpy as np
-import importlib.resources as resources
 
 import sqlidps.sql_tokenizer as sql_tokenizer
 
@@ -11,18 +13,27 @@ def get_package_file(filename: str) -> str:
     with resources.path("sqlidps", filename) as path:
         return str(path)
 
+
 model_path = get_package_file("model.npz")
-# module_path = get_package_file("sql_tokenizer.so")
-# module_name = "sql_tokenizer"
-#
-# spec = importlib.util.spec_from_file_location(module_name, module_path)
-# sql_tokenizer = importlib.util.module_from_spec(spec)
-# sys.modules[module_name] = sql_tokenizer
-# spec.loader.exec_module(sql_tokenizer)
+
+
+def decode_encodings(text: str) -> str:
+    assert isinstance(text, str)
+    try:
+        text = text.replace("\\", "\\\\")
+        text = text.encode("utf-8").decode("unicode_escape")
+    except Exception as e:
+        return ""
+    text = re.sub(
+        r"%([0-9A-Fa-f]{2})", lambda m: bytes.fromhex(m.group(1)).decode("latin1"), text
+    )
+    text = re.sub(r"[Uu]\+([0-9A-Fa-f]{4,6})", lambda m: chr(int(m.group(1), 16)), text)
+    text = html.unescape(text)
+    return text
 
 
 class Inference:
-    def __init__(self, model_path="model.npz", debug=False):
+    def __init__(self, model_path="model.npz"):
         data = np.load(model_path, allow_pickle=True)
         keys = data["vocabulary_keys"]
         vals = data["vocabulary_vals"]
@@ -43,7 +54,7 @@ class Inference:
             )
 
         self.tokenizer = sql_tokenizer
-        self.debug = debug
+        self.debug =False 
 
         if self.debug:
             print(f"Loaded vocabulary size: {len(self.vocabulary_)}")
@@ -138,7 +149,7 @@ pipeline = Inference(model_path=model_path)
 class SQLi:
     @staticmethod
     def _classify(text):
-        prediction = pipeline.predict([text])
+        prediction = pipeline.predict([decode_encodings(text)])
         if prediction[0] == 1:
             raise PotentialSQLiPayload(f"{text} is a potential payload.")
         else:

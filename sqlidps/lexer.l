@@ -1,4 +1,5 @@
 
+
 %{
 #include "./wrapper.h"  
 %}
@@ -15,8 +16,8 @@ STRING_DOUBLE   \"([^\\\"]|(\\.))*\'
 BACKTICK        \`([^\\\`]|(\\.))*\`
 WHITESPACE      [ \t\r\n]+
 COMMENT         (\/\*([^*]|\*+[^*/])*\*+\/)|(--[^\n]*)|(#.*)
-KEYWORDS        (ALTER|AND|AS|AUTO_INCREMENT|BEGIN|BREAK|BY|CASE|CHECK|CHECKPOINT|COMMENT|COMMIT|CREATE|CURSOR|DATABASE|DBCC|DEFAULT|DELETE|DENY|DISTINCT|DROP|ELSE|END|ENGINE|EXISTS|EXEC|EXECUTE|FROM|FULL|FUNCTION|GO|GRANT|GROUP|HAVING|IF|IN|INDEX|INNER|INSERT|JOIN|KEY|LEFT|LIKE|LIMIT|NOT|NULL|ON|OPENQUERY|OPENROWSET|OPENDATASOURCE|OR|ORDER|OUTER|PRIMARY|PROCEDURE|REFERENCES|RIGHT|SELECT|SET|SHUTDOWN|SP_|TABLE|THEN|TRAN|TRANSACTION|TRIGGER|UNION|UPDATE|USE|VALUES|VIEW|WHEN|WHERE|WHILE|OFFSET|ALL|ANY)
-FUNCTIONS       (ASCII\(.*\)|BENCHMARK\(.*\)|BULK[[:space:]]+INSERT|CHAR\(.*\)|CHR\(.*\)|CONCAT\(.*\)|dbms_pipe\.receive_message\(.*\)|INTO[[:space:]]+DUMPFILE|LOAD[[:space:]]+DATA[[:space:]]+INFILE|LOAD_FILE\(.*\)|OPENROWSET|pg_sleep\(.*\)|SLEEP\(.*\)|sp_password|SYS\.DBMS_LDAP\.INIT|UTL_HTTP\.REQUEST|UTL_INADDR\.get_host_addr|version\(.*\)|database\(.*\)|substring\(.*\)|WAITFOR[[:space:]]+DELAY)
+KEYWORDS        (ALTER|AND|AS|AUTO_INCREMENT|BEGIN|BREAK|BY|CASE|CHECK|CHECKPOINT|COMMENT|COMMIT|CREATE|CURSOR|DATABASE|DBCC|DEFAULT|DELETE|DENY|DISTINCT|DROP|ELSE|END|ENGINE|EXISTS|EXEC|EXECUTE|FROM|FULL|FUNCTION|GO|GRANT|GROUP|HAVING|IF|IN|INDEX|INNER|INSERT|JOIN|KEY|LEFT|LIKE|LIMIT|NOT|NULL|ON|OPENQUERY|OPENROWSET|OPENDATASOURCE|OR|ORDER|OUTER|PRIMARY|PROCEDURE|REFERENCES|RIGHT|SELECT|SET|SHUTDOWN|SP_|TABLE|THEN|TRAN|TRANSACTION|TRIGGER|UNION|UPDATE|USE|VALUES|VIEW|WHEN|WHERE|WHILE|OFFSET|ALL|ANY|TRUNCATE)
+FUNCTIONS       (ASCII\(.*\)|BENCHMARK\(.*\)|BULK[[:space:]]+INSERT|CHAR\(.*\)|CHR\(.*\)|CONCAT\(.*\)|dbms_pipe\.receive_message\(.*\)|INTO[[:space:]]+DUMPFILE|LOAD[[:space:]]+DATA[[:space:]]+INFILE|LOAD_FILE\(.*\)|OPENROWSET|pg_sleep\(.*\)|SLEEP\(.*\)|sp_password|SYS\.DBMS_LDAP\.INIT|UTL_HTTP\.REQUEST|UTL_INADDR\.get_host_addr|version\(.*\)|database\(.*\)|substring\(.*\)|WAITFOR[[:space:]]+DELAY|WAITFORDELAY)
 DATA_EXFIL      (@@version|version\(.*\)|sqlite_version\(.*\)|product_component_version|information_schema\.tables|information_schema\.columns|sys\.objects|sys\.columns|sysobjects|syscolumns|all_tables|all_col_comments|ascii\(.*\)|char\(.*\)|chr\(.*\)|concat\(.*\)|concat_ws\(.*\)|group_concat\(.*\)|mid\(.*\)|substring\(.*\)|left\(.*\)|right\(.*\)|hex\(.*\)|unhex\(.*\)|cast\(.*\)|convert\(.*\))
 BLINDSQLI       (if\(.*\)|case[[:space:]]+when[[:space:]]+then[[:space:]]+else[[:space:]]+end|iif\(.*\)|sleep\(.*\)|pg_sleep\(.*\)|waitfor[[:space:]]+delay|benchmark\(.*\)|dbms_pipe\.receive_message\(.*\)|get_lock\(.*\)|rlike|regexp)
 ERRORBASED      (EXTRACTVALUE\(.*\)|UPDATEXML\(.*\)|exp\(.*\)|FLOOR\(.*\)|count\(.*\)|rand\(.*\))
@@ -49,4 +50,5 @@ PUNCTUATION     (\(|\)|,|\.)
 {PUNCTUATION}             { append_token("PUNCTUATION"); }
 .                         { append_token("UNKNOWN"); }
 %%
+
 

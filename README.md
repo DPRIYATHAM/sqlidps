@@ -8,7 +8,7 @@
 ![Wheel](https://img.shields.io/pypi/wheel/sqlidps)
 ![code style](https://img.shields.io/badge/code%20style-black-black)
 ![Python version](https://img.shields.io/pypi/pyversions/sqlidps)
-
+[![PyPI Downloads](https://static.pepy.tech/badge/sqlidps)](https://pepy.tech/projects/sqlidps)
 ### SQL Injection - Detection and Prevention System
 <!--![Codecov](https://codecov.io/gh/DPRIYATHAM/sqlidps/branch/main/graph/badge.svg)-->
 SQLIDPS is a tool designed to detect and prevent SQL injection attacks in web applications. SQL injection is a common attack vector that allows attackers to execute arbitrary SQL code on a database, potentially leading to data breaches and other security issues. This project aims to provide a robust solution for identifying and mitigating such vulnerabilities.

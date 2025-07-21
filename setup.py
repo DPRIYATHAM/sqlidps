@@ -37,7 +37,7 @@ def read_readme():
 
 setup(
     name="sqlidps",
-    version="1.2.1",
+    version="1.2.2",
     packages=find_packages(),
     install_requires=["numpy"],
     ext_modules=[tokenizer_module],
